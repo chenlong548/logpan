@@ -32,6 +32,48 @@ python logpan.py -f logs/ --glob "*.log" -k Traceback --json -o report.json
 cat app.log | python logpan.py -k Traceback -
 ```
 
+### Example output
+
+Scanning a service log for `ERROR|WARN|FATAL`:
+
+```text
+==============================================================
+logpan 0.2.0  扫描于 2026-10-23T11:40:52
+文件数: 1  模式数: 1
+==============================================================
+
+[service.log]  (14 行)
+  'ERROR|WARN|FATAL'             命中      9  行 3..14  ts[2026-10-23 09:14:09 .. 2026-10-23 09:25:33]
+--------------------------------------------------------------
+总命中: 9
+```
+
+That is the whole story: 9 hits, lines 3–14, bounded by the first and last timestamps. Machine-readable mode (`--json`) emits the same facts with English keys — per-file line counts, per-pattern `count/first/last` with timestamps, and (with `--hits`) every hit with file/line/pattern/snippet:
+
+```json
+{
+  "tool": "logpan",
+  "version": "0.2.0",
+  "time": "2026-10-23T11:40:52",
+  "patterns": {"keywords": [], "regexes": ["ERROR|WARN|FATAL"]},
+  "files": [
+    {
+      "file": "service.log", "lines": 14,
+      "stats": {
+        "ERROR|WARN|FATAL": {
+          "count": 9, "first": 3, "last": 14,
+          "first_line": "2026-10-23 09:14:09 WARN  auth-service: slow handshake from 10.2.3.4 (812ms)",
+          "last_line": "2026-10-23 09:25:33 ERROR db.pool: connection timeout after 30s",
+          "first_ts": "2026-10-23 09:14:09",
+          "last_ts": "2026-10-23 09:25:33"
+        }
+      }
+    }
+  ],
+  "hits": []
+}
+```
+
 ### Options
 
 | Option | Meaning |
